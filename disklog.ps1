@@ -44,6 +44,10 @@ $stovdks = foreach ($vdk in $getvdks) {
 }
 $html += $stovdks | ConvertTo-html -Fragment
 
+$html += '<h2>StoragePool</h2>'
+$getstgpool = Get-StoragePool | select FriendlyName,OperationalStatus,HealthStatus,IsPrimordial,IsReadOnly,Size,AllocatedSize
+$html += $getstgpool | ConvertTo-html -Fragment
+
 $html += '<h2>StorageJob</h2>'
 $getStoJob = Get-StorageJob | select Name, IsBackgroundTask, ElapsedTime, JobState, PercentComplete, BytesProcessed, BytesTotal
 $html += $getStoJob | ConvertTo-html -Fragment
