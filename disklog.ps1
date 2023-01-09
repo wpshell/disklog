@@ -71,9 +71,10 @@ $html += $getRFP | ConvertTo-html -Fragment
 $errCode = @()
 $errCode = @(
     'OK'
-	'IO error'
-	'Transient Error'
+    'IO error'
+    'Transient Error'
     'Lost Communication'
+    'In Maintenance Mode'
     'Removing From Pool, OK'
 )
 
