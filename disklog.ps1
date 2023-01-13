@@ -25,6 +25,10 @@ $html += '<h2>Cluster Info</h2>'
 $getCluster = Get-Cluster | select Name,Domain,CrossSiteDelay,CrossSiteThreshold,CrossSubnetDelay,CrossSubnetThreshold
 $html += $getCluster | ConvertTo-html -Fragment
 
+$html += '<h2>Cluster History</h2>'
+$getClusterPerf = Get-ClusterPerf
+$html += $getClusterPerf | ConvertTo-html -Fragment
+
 $html += '<h2>Cluster Nodes</h2>'
 $getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber
 $html += $getClusterNode | ConvertTo-html -Fragment
