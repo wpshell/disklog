@@ -40,12 +40,12 @@ $html += $getCSV | ConvertTo-html -Fragment
 $html += '<h2>Virtual Disk - Volume</h2>'
 $getvdks = Get-VirtualDisk
 $stovdks = foreach ($vdk in $getvdks) {
-	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}}
+	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}
 }
 $html += $stovdks | ConvertTo-html -Fragment
 
 $html += '<h2>StoragePool</h2>'
-$getstgpool = Get-StoragePool | select FriendlyName,OperationalStatus,HealthStatus,IsPrimordial,IsReadOnly,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="AllocatedSize(GB)";expression={[math]::round($_.AllocatedSize/1GB,2)}}
+$getstgpool = Get-StoragePool | select FriendlyName,OperationalStatus,HealthStatus,IsPrimordial,IsReadOnly,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="AllocatedSize(GB)";expression={[math]::round($_.AllocatedSize/1GB,2)}},SupportedProvisioningTypes,ProvisioningTypeDefault
 $html += $getstgpool | ConvertTo-html -Fragment
 
 $html += '<h2>StorageJob</h2>'
@@ -194,7 +194,7 @@ $html += '<h2>Connected Hard Disks Per Node</h2>'
 $Nodes = Get-StorageNode | Select Name -Unique | Sort Name
 ForEach($Node in $Nodes){
 $html += '<h3>Hostname : ' + $Node.name + ' Total Disks : ' + (Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected).count + '</h3>'
-   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation -Unique | sort PhysicalLocation
+   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Percentage (%)";expression={[math]::round($_.VirtualDiskFootprint/$_.Size,2)}},PhysicalLocation -Unique | sort PhysicalLocation
    $html += $getNode | ConvertTo-html -Fragment
 }
 
