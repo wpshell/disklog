@@ -30,7 +30,7 @@ $getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber
 $html += $getClusterNode | ConvertTo-html -Fragment
 
 $html += '<h2>Virtual Disk</h2>'
-$getVirtualDisk = Get-VirtualDisk | select FriendlyName, ResiliencySettingName,PhysicalDiskRedundancy,NumberOfDataCopies,OperationalStatus,HealthStatus,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="FootprintOnPool(GB)";expression={[math]::round($_.FootprintOnPool/1GB,2)}}               
+$getVirtualDisk = Get-VirtualDisk | select FriendlyName, ResiliencySettingName,PhysicalDiskRedundancy,NumberOfDataCopies,OperationalStatus,HealthStatus,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="FootprintOnPool(GB)";expression={[math]::round($_.FootprintOnPool/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}              
 $html += $getVirtualDisk | ConvertTo-html -Fragment
 
 $html += '<h2>Virtual Disk (CSV) Owner</h2>'
@@ -40,7 +40,7 @@ $html += $getCSV | ConvertTo-html -Fragment
 $html += '<h2>Virtual Disk - Volume</h2>'
 $getvdks = Get-VirtualDisk
 $stovdks = foreach ($vdk in $getvdks) {
-	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}
+	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}}
 }
 $html += $stovdks | ConvertTo-html -Fragment
 
