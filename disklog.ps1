@@ -67,8 +67,10 @@ $html += $getTE | ConvertTo-html -Fragment
 }
 
 $getIOE = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'IO error'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
+if ($getIOE) {
 $html += '<h2>Disk IO Error : ' + ($getIOE).count + '</h2>'
 $html += $getIOE | ConvertTo-html -Fragment
+}
 
 $getRFP = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'Remove From Pool'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
 if ($getRFP) {
