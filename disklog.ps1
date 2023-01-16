@@ -194,7 +194,7 @@ $html += '<h2>Connected Hard Disks Per Node</h2>'
 $Nodes = Get-StorageNode | Select Name -Unique | Sort Name
 ForEach($Node in $Nodes){
 $html += '<h3>Hostname : ' + $Node.name + ' Total Disks : ' + (Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected).count + '</h3>'
-   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Percentage (%)";expression={[math]::round($_.VirtualDiskFootprint/$_.Size,2)}},PhysicalLocation -Unique | sort PhysicalLocation
+   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Percentage (%)";expression={[math]::round(($_.VirtualDiskFootprint/$_.Size)*100,2)}},PhysicalLocation -Unique | sort PhysicalLocation
    $html += $getNode | ConvertTo-html -Fragment
 }
 
