@@ -48,25 +48,33 @@ $html += '<h2>StoragePool</h2>'
 $getstgpool = Get-StoragePool | select FriendlyName,OperationalStatus,HealthStatus,IsPrimordial,IsReadOnly,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="AllocatedSize(GB)";expression={[math]::round($_.AllocatedSize/1GB,2)}},SupportedProvisioningTypes,ProvisioningTypeDefault
 $html += $getstgpool | ConvertTo-html -Fragment
 
-$html += '<h2>StorageJob</h2>'
 $getStoJob = Get-StorageJob | select Name, IsBackgroundTask, ElapsedTime, JobState, PercentComplete, BytesProcessed, BytesTotal
+if ($getStoJob) {
+$html += '<h2>StorageJob</h2>'
 $html += $getStoJob | ConvertTo-html -Fragment
+}
 
 $getLC = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'Lost Communication'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
+if ($getLC) {
 $html += '<h2>Disk Loss Communication : ' + ($getLC).count + '</h2>'
 $html += $getLC | ConvertTo-html -Fragment
+}
 
 $getTE = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'Transient Error'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
+if ($getTE) {
 $html += '<h2>Transient Error : ' + ($getTE).count + '</h2>'
 $html += $getTE | ConvertTo-html -Fragment
+}
 
 $getIOE = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'IO error'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
 $html += '<h2>Disk IO Error : ' + ($getIOE).count + '</h2>'
 $html += $getIOE | ConvertTo-html -Fragment
 
 $getRFP = Get-PhysicalDisk | ? {$_.OperationalStatus -match 'Remove From Pool'} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
+if ($getRFP) {
 $html += '<h2>Remove From Pool : ' + ($getRFP).count + '</h2>'
 $html += $getRFP | ConvertTo-html -Fragment
+}
 
 $errCode = @()
 $errCode = @(
@@ -79,8 +87,18 @@ $errCode = @(
 )
 
 $getNOk = Get-PhysicalDisk | ? {$_.OperationalStatus -notin $errCode} | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,VirtualDiskFootprint,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation,ObjectId
+if ($getNOk) {
 $html += '<h2>Non Okay Drive : ' + ($getNOk).count + '</h2>'
 $html += $getNOk | ConvertTo-html -Fragment
+}
+
+$html += '<h2>Connected Hard Disks Per Node</h2>'
+$Nodes = Get-StorageNode | Select Name -Unique | Sort Name
+ForEach($Node in $Nodes){
+$html += '<h3>Hostname : ' + $Node.name + ' Total Disks : ' + (Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected).count + '</h3>'
+   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Percentage (%)";expression={[math]::round(($_.VirtualDiskFootprint/$_.Size)*100,2)}},PhysicalLocation -Unique | sort PhysicalLocation
+   $html += $getNode | ConvertTo-html -Fragment
+}
 
 $tbhead = @()
 $tbhead = @(
@@ -102,7 +120,7 @@ $tbhead = @(
   'ObjectId'
 )
 
-$html += '<h2>Connected Hard Disk Details</h2>'
+$html += '<h2>Physically Connected Hard Disk Details</h2>'
 $html += '<table><tr>'
 foreach ($item in $tbhead) {
 $html += '<th>' + $item + '</th>'	
@@ -189,14 +207,6 @@ $uuid = $ouid[2] -replace "[^a-zA-Z0-9]"
 } 
 $html += $xout
 $html += '</table>'
-
-$html += '<h2>Connected Hard Disks Per Node</h2>'
-$Nodes = Get-StorageNode | Select Name -Unique | Sort Name
-ForEach($Node in $Nodes){
-$html += '<h3>Hostname : ' + $Node.name + ' Total Disks : ' + (Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected).count + '</h3>'
-   $getNode = Get-StorageNode -Name $Node.name | Get-PhysicalDisk -PhysicallyConnected | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="Percentage (%)";expression={[math]::round(($_.VirtualDiskFootprint/$_.Size)*100,2)}},PhysicalLocation -Unique | sort PhysicalLocation
-   $html += $getNode | ConvertTo-html -Fragment
-}
 
 $getConDisk = Get-Physicaldisk | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation | sort PhysicalLocation
 $html += '<h2>All Hard Disk : ' + ($getConDisk).count + '</h2>'
