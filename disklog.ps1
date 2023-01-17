@@ -47,10 +47,10 @@ Foreach ($Line in $File) {
 }
 
 $html += '<h2>Cluster Statistic</h2>'
-$html += '<table style="width:auto;border:1px solid black;">'
+$html += '<table style="width:auto;border:1px solid #ddd;">'
 $html += '<thead style="background-color: #04AA6D;text-align:left;"><tr>'
-$html += '<th style="border:1px solid black;">Series</th>'
-$html += '<th style="border:1px solid black;">Value</th>'
+$html += '<th style="border:1px solid #ddd;">Series</th>'
+$html += '<th style="border:1px solid #ddd;">Value</th>'
 $html += '</tr></thead><tbody>'
 
 $i = 0
@@ -58,13 +58,13 @@ foreach ($data in $clusperf) {
     if ($data.series) {
 		if (!$data.series.Contains("Object")) {
 			if($i % 2 -eq 0){
-				$html += '<tr style="border:1px solid black;background-color: #f2f2f2;">'
+				$html += '<tr style="border:1px solid #ddd;background-color: #f2f2f2;">'
 			}else{
-				$html += '<tr style="border:1px solid black;">'
+				$html += '<tr style="border:1px solid #ddd;">'
 			}
 			
-			$html += '<td style="border:1px solid black;">' + $data.series + '</td>'
-			$html += '<td style="border:1px solid black;">' + $data.value + " " + $data.unit + '</td>'
+			$html += '<td style="border:1px solid #ddd;">' + $data.series + '</td>'
+			$html += '<td style="border:1px solid #ddd;">' + $data.value + " " + $data.unit + '</td>'
 			$html += '</tr>'
 			$i++
 		}
