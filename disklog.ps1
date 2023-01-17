@@ -18,13 +18,16 @@ $html = ''
 $html = '<html>'
 $html += '<style>body { font-family:Helvetica; } h1 { font-size:22px;font-weight:bold;margin-bottom: auto; } h2 { font-size:20px;font-weight:bold;padding-top:25px;margin-bottom:0px; } h3 { margin-bottom:0px; } label { font-family:monospace; font-size:10px;} table { border-collapse:collapse; min-width:550px; max-width:899px;padding:8px; } 
 th, td { text-align:left;padding:5px;font-size:12px;border:1px solid #ddd; } tr:nth-child(even) { background-color: #f2f2f2 } th { background-color: #04AA6D; color: white; }</style>'
+if ((Get-Command "Get-Cluster" -ErrorAction SilentlyContinue)) {
 $html += '<h1>Disk Log</h1>'
 $html += '<label>Running at ' + $env:COMPUTERNAME + ' Time : ' + [DateTime]::Now.ToString("yyyyMMdd-HHmmss") + '</label>'
 $html += '<body>'
 $html += '<h2>Cluster Info</h2>'
 $getCluster = Get-Cluster | select Name,Domain,CrossSiteDelay,CrossSiteThreshold,CrossSubnetDelay,CrossSubnetThreshold
 $html += $getCluster | ConvertTo-html -Fragment
+}
 
+if ((Get-Command "Get-ClusterPerf" -ErrorAction SilentlyContinue)) {
 Get-ClusterPerf | out-file C:\Dell\temp.txt
 $File = Get-Content C:\Dell\temp.txt
 $clusperf = @()
@@ -71,19 +74,23 @@ foreach ($data in $clusperf) {
 }
 
 $html += '</tbody></table>'
+}
 
-
+if ((Get-Command "Get-ClusterNode" -ErrorAction SilentlyContinue)) {
 $html += '<h2>Cluster Nodes</h2>'
-$getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber
+$getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber -ErrorAction SilentlyContinue
 $html += $getClusterNode | ConvertTo-html -Fragment
+}
 
 $html += '<h2>Virtual Disk</h2>'
 $getVirtualDisk = Get-VirtualDisk | select FriendlyName, ResiliencySettingName,PhysicalDiskRedundancy,NumberOfDataCopies,OperationalStatus,HealthStatus,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="FootprintOnPool(GB)";expression={[math]::round($_.FootprintOnPool/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}              
 $html += $getVirtualDisk | ConvertTo-html -Fragment
 
+if ((Get-Command "Get-ClusterSharedVolume" -ErrorAction SilentlyContinue)) {
 $html += '<h2>Virtual Disk (CSV) Owner</h2>'
 $getCSV = Get-ClusterSharedVolume | select Name,State,OwnerNode | Sort OwnerNode
 $html += $getCSV | ConvertTo-html -Fragment
+}
 
 $html += '<h2>Virtual Disk - Volume</h2>'
 $getvdks = Get-VirtualDisk
@@ -142,6 +149,7 @@ $html += '<h2>Non Okay Drive : ' + ($getNOk).count + '</h2>'
 $html += $getNOk | ConvertTo-html -Fragment
 }
 
+if ((Get-Command "Get-StorageNode" -ErrorAction SilentlyContinue)) {
 $html += '<h2>Connected Hard Disks Per Node</h2>'
 $Nodes = Get-StorageNode | Select Name -Unique | Sort Name
 ForEach($Node in $Nodes){
@@ -257,6 +265,7 @@ $uuid = $ouid[2] -replace "[^a-zA-Z0-9]"
 } 
 $html += $xout
 $html += '</table>'
+}
 
 $getConDisk = Get-Physicaldisk | Select FriendlyName,SerialNumber,CanPool,OperationalStatus,HealthStatus,Usage,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},PhysicalLocation | sort PhysicalLocation
 $html += '<h2>All Hard Disk : ' + ($getConDisk).count + '</h2>'
