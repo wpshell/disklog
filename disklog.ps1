@@ -25,6 +25,54 @@ $html += '<h2>Cluster Info</h2>'
 $getCluster = Get-Cluster | select Name,Domain,CrossSiteDelay,CrossSiteThreshold,CrossSubnetDelay,CrossSubnetThreshold
 $html += $getCluster | ConvertTo-html -Fragment
 
+Get-ClusterPerf | out-file C:\Dell\temp.txt
+$File = Get-Content C:\Dell\temp.txt
+$clusperf = @()
+Foreach ($Line in $File) {
+    if (!($Line.Contains("Series") -or $Line.Contains("Time") -or $Line.Contains("Value") -or $Line.Contains("Unit") -or $Line.Contains("-"))) {
+        $mystring = ($Line -replace "\s+"," ").Trim()
+        $mystring = $mystring.Split(" ")
+        $clusperf += @(
+            [PSCustomObject]@{
+                series = $mystring[0];
+                time = $mystring[1] + " " + $mystring[2];
+                value = $mystring[3];
+                unit = $mystring[4];
+            }
+        )
+    }
+}
+
+$html += '<h2>Cluster Statistic</h2>'
+$html += '<table style="width:100%;border:1px solid black;">'
+$html += '<thead style="background-color: #f2f2f2;text-align:left;"><tr>'
+$html += '<th style="border:1px solid black;">Series</th>'
+$html += '<th style="border:1px solid black;">Time</th>'
+$html += '<th style="border:1px solid black;">Value</th>'
+$html += '</tr></thead><tbody>'
+
+$i = 0
+foreach ($data in $clusperf) {
+    if ($data.series) {
+		if (!$data.series.Contains("Object")) {
+			if($i % 2 -eq 0){
+				$html += '<tr style="border:1px solid black;background-color: #f2f2f2;">'
+			}else{
+				$html += '<tr style="border:1px solid black;">'
+			}
+			
+			$html += '<td style="border:1px solid black;">' + $data.series + '</td>'
+			$html += '<td style="border:1px solid black;">' + $data.time + '</td>'
+			$html += '<td style="border:1px solid black;">' + $data.value + " " + $data.unit + '</td>'
+			$html += '</tr>'
+			$i++
+		}
+    }
+}
+
+$html += '</tbody></table>'
+
+
 $html += '<h2>Cluster Nodes</h2>'
 $getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber
 $html += $getClusterNode | ConvertTo-html -Fragment
