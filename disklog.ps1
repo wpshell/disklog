@@ -46,7 +46,7 @@ Foreach ($Line in $File) {
     }
 }
 
-$html += '<h2>Cluster Statistic</h2>'
+$html += '<h2>Cluster Statistics</h2>'
 $html += '<table style="width:auto;border:1px solid #ddd;">'
 $html += '<thead style="background-color: #04AA6D;text-align:left;"><tr>'
 $html += '<th style="border:1px solid #ddd;">Series</th>'
