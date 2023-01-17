@@ -39,7 +39,6 @@ Foreach ($Line in $File) {
         $clusperf += @(
             [PSCustomObject]@{
                 series = $mystring[0];
-                time = $mystring[1] + " " + $mystring[2];
                 value = $mystring[3];
                 unit = $mystring[4];
             }
@@ -48,10 +47,9 @@ Foreach ($Line in $File) {
 }
 
 $html += '<h2>Cluster Statistic</h2>'
-$html += '<table style="width:100%;border:1px solid black;">'
-$html += '<thead style="background-color: #f2f2f2;text-align:left;"><tr>'
+$html += '<table style="width:auto;border:1px solid black;">'
+$html += '<thead style="background-color: #04AA6D;text-align:left;"><tr>'
 $html += '<th style="border:1px solid black;">Series</th>'
-$html += '<th style="border:1px solid black;">Time</th>'
 $html += '<th style="border:1px solid black;">Value</th>'
 $html += '</tr></thead><tbody>'
 
@@ -66,7 +64,6 @@ foreach ($data in $clusperf) {
 			}
 			
 			$html += '<td style="border:1px solid black;">' + $data.series + '</td>'
-			$html += '<td style="border:1px solid black;">' + $data.time + '</td>'
 			$html += '<td style="border:1px solid black;">' + $data.value + " " + $data.unit + '</td>'
 			$html += '</tr>'
 			$i++
