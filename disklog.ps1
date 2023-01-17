@@ -7,7 +7,7 @@ $welcome = @"
 								 
 "@
 write-host $welcome
-$fname = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")+".html"
+$fname = "disklog-"+[DateTime]::Now.ToString("yyyyMMdd-HHmmss")+".html"
 $folder = 'C:\Dell'
 $filename = $folder + "\" + $fname
 $filenamez= $filename -replace ".html",".zip"
