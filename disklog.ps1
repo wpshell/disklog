@@ -10,8 +10,9 @@ write-host $welcome
 $fname = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")+".html"
 $folder = 'C:\Dell'
 $filename = $folder + "\" + $fname
+$filenamez= $filename -replace ".html",".zip"
 Write-host "Please wait for 3-5 minutes"
-Write-host "Output file path :"$filename
+Write-host "Output file path :"$filenamez
 
 if (!(Test-Path $folder)) { mkdir C:\Dell }
 $html = ''
@@ -293,5 +294,7 @@ $html += $ssdo | ConvertTo-html -Fragment
 
 $html += '</body></html>' 
 $html | out-file $filename -Append
-
+Compress-Archive -Path $filename -DestinationPath $filenamez
+rm C:\Dell\temp.txt
+rm $filename
 Write-host "Done!"
