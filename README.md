@@ -3,8 +3,8 @@ Introducing Disklog, a powerful script that simplifies the process of collecting
 
 To use Disklog, you can follow these steps:
 
-1. Create a directory called 'Dell' in the C:\ drive using the command 'mkdir c:\Dell'
-2. Download the script using the command 'wget https://raw.githubusercontent.com/wpshell/disklog/main/disklog.ps1 -OutFile c:\Dell\disklog.ps1'
+1. Create a directory called 'Dell' in the C:\ drive using the command 'mkdir C:\Dell'
+2. Download the script using the command 'wget https://raw.githubusercontent.com/wpshell/disklog/main/disklog.ps1 -OutFile C:\Dell\disklog.ps1'
 3. Change the directory to Dell by using 'cd Dell' command
 4. Run the script with the command '.\disklog.ps1'
 5. Allow the script to run for a period of 3-5 minutes to collect the log file
