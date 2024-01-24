@@ -74,6 +74,32 @@ foreach ($data in $clusperf) {
 $html += '</tbody></table>'
 }
 
+$ttdisks = 0
+
+$html += '<h2>Cluster Health</h2>'
+$getHealth = Get-HealthFault | select @{label="Severity";expression={$_.PerceivedSeverity}}, Reason, @{label="Description";expression={$_.FaultingObjectDescription}},@{label="Action";expression={$_.RecommendedActions}}
+$html += $getHealth | ConvertTo-html -Fragment
+
+$ttdisk = Get-Virtualdisk | Select FootprintOnPool
+Foreach ($mvol in $ttdisk) {
+	$ttdisks += $mvol.FootprintOnPool
+}
+
+$s2dSize = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select Size
+$atd = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select ThinProvisioningAlertThresholds
+$util = [math]::round(($ttdisks/$s2dSize.size)*100)
+
+$html += '<h2>StoragePool Utilization</h2>'
+$html += '<table style="width:auto;border:1px solid #ddd;">'
+$html += '<thead style="background-color: #04AA6D;text-align:left;"><tr>'
+$html += '<th style="border:1px solid #ddd;">StoragePool Threshold</th>'
+$html += '<th style="border:1px solid #ddd;">Actual Utilization</th>'
+$html += '</tr></thead><tbody>'
+$html += '<td style="border:1px solid #ddd;">' + $atd.ThinProvisioningAlertThresholds + '</td>'
+$html += '<td style="border:1px solid #ddd;">' + $util + '</td>'
+$html += '</tr>'
+$html += '</tbody></table>'
+
 if ((Get-Command "Get-ClusterNode" -ErrorAction SilentlyContinue)) {
 $html += '<h2>Cluster Nodes</h2>'
 $getClusterNode = Get-ClusterNode | select Name, State, Type, SerialNumber -ErrorAction SilentlyContinue
@@ -81,7 +107,7 @@ $html += $getClusterNode | ConvertTo-html -Fragment
 }
 
 $html += '<h2>Virtual Disk</h2>'
-$getVirtualDisk = Get-VirtualDisk | select FriendlyName, ResiliencySettingName,PhysicalDiskRedundancy,NumberOfDataCopies,OperationalStatus,HealthStatus,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="FootprintOnPool(GB)";expression={[math]::round($_.FootprintOnPool/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}              
+$getVirtualDisk = Get-VirtualDisk | select FriendlyName,PhysicalDiskRedundancy,NumberOfDataCopies,OperationalStatus,HealthStatus,@{label="Size(GB)";expression={[math]::round($_.Size/1GB,2)}},@{label="FootprintOnPool(GB)";expression={[math]::round($_.FootprintOnPool/1GB,2)}},@{label="Provisioning";expression={$_.ProvisioningType}},@{label="Dedup";expression={$_.IsDeduplicationEnabled}}              
 $html += $getVirtualDisk | ConvertTo-html -Fragment
 
 if ((Get-Command "Get-ClusterSharedVolume" -ErrorAction SilentlyContinue)) {
@@ -93,7 +119,7 @@ $html += $getCSV | ConvertTo-html -Fragment
 $html += '<h2>Virtual Disk - Volume</h2>'
 $getvdks = Get-VirtualDisk
 $stovdks = foreach ($vdk in $getvdks) {
-	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}}
+	Get-VirtualDisk -UniqueId $vdk.UniqueId | Get-Disk | Get-Partition | Get-Volume | select FileSystemLabel,DriveLetter,FileSystem,FileSystemType,HealthStatus,ResiliencySettingNameDefault,OperationalStatus,AllocationUnitSize,@{label="SizeRemaining (GB)";expression={[math]::round($_.SizeRemaining/1GB,2)}},@{label="Size (GB)";expression={[math]::round($_.Size/1GB,2)}}
 }
 $html += $stovdks | ConvertTo-html -Fragment
 
