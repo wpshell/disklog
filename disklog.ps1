@@ -89,7 +89,7 @@ $s2dSize = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select Size
 $atd = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select ThinProvisioningAlertThresholds
 $util = [math]::round(($ttdisks/$s2dSize.size)*100)
 
-$html += '<h2>StoragePool Utilization</h2>'
+$html += '<h2>StoragePool Usage</h2>'
 $html += '<table style="width:auto;border:1px solid #ddd;">'
 $html += '<thead style="background-color: #04AA6D;text-align:left;"><tr>'
 $html += '<th style="border:1px solid #ddd;">StoragePool Threshold</th>'
