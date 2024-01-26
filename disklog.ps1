@@ -85,7 +85,7 @@ Foreach ($mvol in $ttdisk) {
 	$ttdisks += $mvol.FootprintOnPool
 }
 
-$s2dSize = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select Size
+$s2dSize = Get-StoragePool | ? Friendlyname -NotLike 'Primordial' | Select Size
 $atd = Get-StoragePool | ? Friendlyname -Like 'S2D *' | Select ThinProvisioningAlertThresholds
 $util = [math]::round(($ttdisks/$s2dSize.size)*100)
 
